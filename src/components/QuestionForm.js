@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { API_URL } from "./BaseUrl";
 
 function QuestionForm(props) {
   const [formData, setFormData] = useState({
@@ -10,6 +11,8 @@ function QuestionForm(props) {
     correctIndex: 0,
   });
 
+  const [loading, setLoading] = useState(false)
+
   function handleChange(event) {
     setFormData({
       ...formData,
@@ -20,6 +23,25 @@ function QuestionForm(props) {
   function handleSubmit(event) {
     event.preventDefault();
     console.log(formData);
+
+    const submittedData = {
+      prompt : formData.prompt,
+      answers : [formData.answer1, formData.answer2, formData.answer3, formData.answer4],
+      correctIndex: formData.correctIndex
+    }
+
+    setLoading(true);
+    fetch(API_URL + "questions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(submittedData)
+    })
+      .then((res) => res.json())
+      .then(data => console.log(data))
+      .catch((err) => console.log(err))
+      .finally(() => setLoading(false));
   }
 
   return (
@@ -84,7 +106,7 @@ function QuestionForm(props) {
             <option value="3">{formData.answer4}</option>
           </select>
         </label>
-        <button type="submit">Add Question</button>
+        <button disabled={loading} type="submit">Add Question</button>
       </form>
     </section>
   );
